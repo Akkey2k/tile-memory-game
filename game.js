@@ -232,7 +232,7 @@ function showMenu(){
     $menu.style.width = $game.style.width;
     $menu.style.display = "flex";
     $menu.querySelectorAll(".complexity-lvl").forEach(comp =>{
-        if(comp.dataset.complexity !== this.complexity){
+        if(Number(comp.dataset.complexity) !== this.complexity){
             comp.style.display = "flex"
         } else {
             comp.style.display = "none"
