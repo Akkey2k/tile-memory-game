@@ -1,24 +1,40 @@
-const menu = document.querySelector("#menu");
-const game = document.querySelector("#root");
+const $menu = document.querySelector("#menu");
+const $game = document.querySelector("#root");
 
-const complexities = document.querySelectorAll(".complexity-lvl");
+const $complexities = document.querySelectorAll(".complexity-lvl");
 
-complexities.forEach((comp) => {
-    comp.addEventListener("click", () => chooseComplexity(comp.dataset.complexity))
+$complexities.forEach((comp) => {
+    comp.addEventListener("click", () => chooseComplexity(Number(comp.dataset.complexity)))
 });
 
+
+/**
+ * Запускает генерацию игры с выбранной сложностью
+ *
+ * @param {Number} complexity
+ */
 function chooseComplexity(complexity) {
     this.complexity = complexity;
     initGame(complexity);
 }
 
+
+/**
+ * Мешает массив плиток
+ *
+ * @param {Array.<Number>} array
+ */
 function shuffle(array) {
     array.sort(() => Math.random() - 0.5);
 }
 
-function initGame(complexity) {
-    menu.style.display = "none";
 
+/**
+ * Генерирует двумерный массив на основе выбранной сложности и запускает отрисовку игрового поля
+ *
+ * @param {Number} complexity
+ */
+function initGame(complexity) {
     let tilesViewCount = (complexity * (complexity/2));
 
     let tiles = [];
@@ -45,6 +61,12 @@ function initGame(complexity) {
     drawGame(matrix)
 }
 
+
+/**
+ * Массив иконок для плиток
+ *
+ * @type {string[]}
+ */
 iconIndex = [
     "",
     "fa fa-skating",
@@ -68,17 +90,22 @@ iconIndex = [
 ]
 
 
+/**
+ * Рисует игровое поле на основе сгенерированного двумерного массива
+ *
+ * @param {Array.<Array.<Number>>} matrix
+ */
 function drawGame(matrix) {
-    console.log(matrix);
+    $menu.style.display = "none";
 
-    game.innerHTML = "";
+    $game.innerHTML = "";
     const size = 50;
     const sizeText = 50 + "px";
-    game.style.width = (matrix.length * size) + matrix.length * 10 + "px";
+    $game.style.width = (matrix.length * size) + matrix.length * 10 + "px";
 
     for (let i = 0; i < matrix.length; i++){
         for (let j = 0; j < matrix.length; j++){
-            game.insertAdjacentHTML("afterbegin", `
+            $game.insertAdjacentHTML("beforeend", `
                 <div onclick="chooseTile(${matrix[i][j]},${i},${j})" style="width: ${sizeText}; height: ${sizeText}" data-tilePosition=${i + "" +j} class="tile">
                     <div class="front"></div>
                     <div class="back">
@@ -90,6 +117,14 @@ function drawGame(matrix) {
     }
 }
 
+
+/**
+ * Обрабатывает клик по плитке
+ *
+ * @param {Number} val  Значение плитки
+ * @param {Number} i    Позиция ряда
+ * @param {Number} j    Позицтя колонки
+ */
 function chooseTile(val, i, j) {
     this.values = this.values ? this.values : {};
 
@@ -126,10 +161,16 @@ function chooseTile(val, i, j) {
     }
 }
 
-function activateTileByPosition(pos){
-    const tiles = game.querySelectorAll(".tile");
 
-    tiles.forEach(tile => {
+/**
+ * Переворачивает плитки, запускает проверку на конец игры
+ *
+ * @param {Number} pos  Позиция плитки
+ */
+function activateTileByPosition(pos){
+    const $tiles = $game.querySelectorAll(".tile");
+
+    $tiles.forEach(tile => {
         if(tile.dataset.tileposition === pos){
             tile.classList.add("tile_found")
         }
@@ -137,31 +178,44 @@ function activateTileByPosition(pos){
 
     let foundTilesCount = 0;
 
-    tiles.forEach(tile =>{
+    $tiles.forEach(tile =>{
         if(tile.classList.contains("tile_found")){
             foundTilesCount++
         }
     });
 
-    checkGameOver(tiles.length, foundTilesCount);
+    checkGameOver($tiles.length, foundTilesCount);
 }
 
-function disableTileByPosition(pos) {
-    const tiles = game.querySelectorAll(".tile");
 
-    tiles.forEach(tile => {
+/**
+ * Переворачивает плитку обратно
+ *
+ * @param {Number} pos  Позиция плитки
+ */
+function disableTileByPosition(pos) {
+    const $tiles = $game.querySelectorAll(".tile");
+
+    $tiles.forEach(tile => {
         if(tile.dataset.tileposition === pos){
             tile.classList.remove("tile_found")
         }
     })
 }
 
+
+/**
+ * Проверяет - если все плитки перевернуты (угаданы), то рисует диалоговое окно и меню
+ *
+ * @param {Number} allTiles     Кол-во всех плиток
+ * @param {Number} foundTiles   Кол-во угаданных плиток
+ */
 function checkGameOver(allTiles, foundTiles) {
     if(allTiles === foundTiles){
         window.setTimeout(function () {
             showMenu();
 
-            game.insertAdjacentHTML("afterbegin", `
+            $game.insertAdjacentHTML("afterbegin", `
                 <div class="game-over">
                     <button onclick="initGame(${this.complexity})"><span class="fa fa-redo"></span>Заново</button>
                 </div>
@@ -170,10 +224,14 @@ function checkGameOver(allTiles, foundTiles) {
     }
 }
 
+
+/**
+ * Показывает (Меню) те блоки выбора сложности, которые не равны выбранной в данный момент
+ */
 function showMenu(){
-    menu.style.width = game.style.width;
-    menu.style.display = "flex";
-    menu.querySelectorAll(".complexity-lvl").forEach(comp =>{
+    $menu.style.width = $game.style.width;
+    $menu.style.display = "flex";
+    $menu.querySelectorAll(".complexity-lvl").forEach(comp =>{
         if(comp.dataset.complexity !== this.complexity){
             comp.style.display = "flex"
         } else {
